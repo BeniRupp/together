@@ -1,3 +1,3 @@
 # Together
-Organize your remote team work.
 
+Organize your remote team work.
