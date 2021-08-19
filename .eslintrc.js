@@ -15,4 +15,19 @@ module.exports = {
 		'plugin:import/recommended',
 		'prettier',
 	],
+	rules: {
+		'jest/no-standalone-expect': [
+			'error',
+			{
+				additionalTestBlockFunctions: [
+					'Given',
+					'When',
+					'Then',
+					'And',
+					'But',
+					'Fusion',
+				],
+			},
+		],
+	},
 }
