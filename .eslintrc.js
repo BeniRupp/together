@@ -5,6 +5,13 @@ module.exports = {
 		ecmaVersion: 'latest',
 		sourceType: 'module',
 	},
+	settings: {
+		'import/resolver': {
+			node: {
+				extensions: ['.js', '.jsx', '.ts', '.tsx'],
+			},
+		},
+	},
 	env: { es6: true, node: true },
 	plugins: ['@typescript-eslint', 'jest'],
 	extends: [
