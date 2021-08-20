@@ -13,4 +13,5 @@ export default {
 		'^.+\\.vue$': 'vue-jest',
 		'^.+\\.js$': 'babel-jest',
 	},
+	setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 }
