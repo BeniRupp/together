@@ -9,7 +9,9 @@
 		"prettier:fix": "yarn prettier --write .",
 		"prettier:check": "yarn prettier --check .",
 		"prepare": "husky install",
-		"test:unit": "jest",
+		"test": "yarn test:acceptance && yarn test:unit",
+		"test:unit": "jest tests/unit/*",
+		"test:acceptance": "jest tests/acceptance/*",
 		"lint": "yarn eslint . --ext .js,.jsx,.ts,.tsx"
 	},
 	"dependencies": {
