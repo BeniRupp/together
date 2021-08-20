@@ -2,7 +2,7 @@ module.exports = {
 	root: true,
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
-		ecmaVersion: 'latest',
+		ecmaVersion: 6,
 		sourceType: 'module',
 	},
 	settings: {
@@ -26,15 +26,15 @@ module.exports = {
 		'jest/no-standalone-expect': [
 			'error',
 			{
-				additionalTestBlockFunctions: [
-					'Given',
-					'When',
-					'Then',
-					'And',
-					'But',
-					'Fusion',
-				],
+				additionalTestBlockFunctions: ['Given', 'When', 'Then', 'And', 'But'],
 			},
 		],
 	},
+	overrides: [
+		{
+			files: ['*.vue'],
+			parser: 'vue-eslint-parser',
+			parserOptions: { parser: '@typescript-eslint/parser' },
+		},
+	],
 }
