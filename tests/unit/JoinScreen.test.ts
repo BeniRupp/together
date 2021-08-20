@@ -14,14 +14,13 @@ it('should join a user in the default room.', async () => {
 		global: { stubs: { loadAppConfig: configStub } },
 	})
 	await flushPromises()
-	expect(wrapper.find('[data-id=join-screen]').element).toHaveTextContent(/Hi/)
-	expect(wrapper.find('[data-id=join-screen]').element).toHaveTextContent(/Hi/)
+	expect(wrapper.find('[data-id=join-form]').exists()).toBe(true)
 	await wrapper.find('input[data-id=username]').setValue('Jane')
 	expect(wrapper.find('[data-id=room]').exists()).toBe(false)
 	await wrapper.find('button[data-id=join]').trigger('click')
-	expect(wrapper.find('[data-id=join-screen]').exists()).toBe(false)
+	expect(wrapper.find('[data-id=join-form]').exists()).toBe(false)
+	expect(wrapper.find('header').element).toHaveTextContent(/Hi, Jane./)
 	const defaultRoom = wrapper.find('[data-id=room]')
-	expect(defaultRoom.exists()).toBe(true)
 	expect(defaultRoom.find('[data-id=name]').element).toHaveTextContent(
 		DEFAULT_ROOM_NAME
 	)

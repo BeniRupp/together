@@ -1,12 +1,12 @@
 <template>
-	<div id="app">
-		<h1>Together</h1>
-		<div v-if="!userJoined" data-id="join-screen">
-			<h2>Hi</h2>
-			<join-form @success="join" />
-		</div>
+	<header class="header">
+		<span class="header__logo">Together</span>
+		<span v-if="user" class="header__greeting">Hi, {{ user.name }}.</span>
+	</header>
+	<main>
+		<join-form v-if="!user" class="app-join" @success="join" />
 		<app-room v-else :room="app.defaultRoom" />
-	</div>
+	</main>
 </template>
 
 <script lang="ts">
@@ -26,7 +26,7 @@ export default defineComponent({
 	components: { JoinForm, AppRoom },
 	data() {
 		return {
-			userJoined: false,
+			user: null,
 			app: new App(),
 		}
 	},
@@ -42,20 +42,37 @@ export default defineComponent({
 			this.app.defaultRoom = new Room(config.defaultRoomName)
 		},
 		join(username: string): void {
-			this.app.join(new User(username))
+			const user = new User(username)
+			this.user = user
+			this.app.join(user)
 			this.userJoined = true
 		},
 	},
 })
 </script>
 
-<style>
-#app {
-	font-family: Avenir, Helvetica, Arial, sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	text-align: center;
-	color: #2c3e50;
-	margin-top: 60px;
+<style scoped>
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.5rem 1rem;
+	background-color: gold;
+}
+.header__logo {
+	font-weight: bold;
+	font-size: 1.5rem;
+}
+.header__greeting {
+	font-style: italic;
+}
+
+main {
+	flex: 1 0 auto;
+}
+
+.app-join {
+	max-width: 40%;
+	margin: 5rem auto;
 }
 </style>

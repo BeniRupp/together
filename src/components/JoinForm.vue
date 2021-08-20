@@ -1,5 +1,10 @@
 <template>
-	<form autocomplete="off" @submit.prevent="join">
+	<form
+		autocomplete="off"
+		data-id="join-form"
+		class="join-form"
+		@submit.prevent="join"
+	>
 		<fieldset>
 			<legend>Join together.</legend>
 
@@ -34,3 +39,16 @@ export default defineComponent({
 	},
 })
 </script>
+
+<style scoped>
+.join-form legend {
+	font-weight: bold;
+}
+.join-form label {
+	display: block;
+	margin: 1.5rem 0;
+}
+.join-form button {
+	margin-left: auto;
+}
+</style>

@@ -1,0 +1,9 @@
+body {
+	margin: 0;
+}
+
+button {
+	background-color: gold;
+	padding: 0.4rem 0.5rem;
+	min-width: 75px;
+}
