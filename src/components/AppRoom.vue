@@ -1,5 +1,5 @@
 <template>
-	<div data-id="room" class="room">
+	<div data-id="room" :data-name="room.name" class="room">
 		<h3 data-id="name" class="room__name">{{ room.name }}</h3>
 		<span
 			v-for="user in room.users"

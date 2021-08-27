@@ -1,18 +1,23 @@
 import { User } from './User'
+import { v4 as uuid } from 'uuid'
 
 export class Room {
+	id: string
 	name: string
-	_users: User[]
+	private users: User[]
 
 	constructor(name: string) {
+		this.id = uuid()
 		this.name = name
-		this._users = []
+		this.users = []
 	}
-
-	set users(users: User[]) {
-		this._users.push(...users)
+	getUsers(): User[] {
+		return this.users
 	}
-	get users(): User[] {
-		return this._users
+	addUser(user: User): void {
+		this.users.push(user)
+	}
+	removeUser(user: User): void {
+		this.users = this.users.filter((u) => u.id !== user.id)
 	}
 }
