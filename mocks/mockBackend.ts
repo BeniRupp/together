@@ -15,6 +15,10 @@ app.get('/api/spaces/:spaceId/rooms', (req: any, res: any) => {
 	res.send(rooms)
 })
 
+app.get('/health', (req: any, res: any) => {
+	res.send()
+})
+
 app.listen(port, () => {
 	console.log(`🤖 Mock backend is listening at http://localhost:${port}`)
 })

@@ -4,7 +4,8 @@
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
+		"dev": "concurrently 'yarn:mock' 'yarn:dev:ui'",
+		"dev:ui": "wait-on http://localhost:3010/health && vite",
 		"mock": "nodemon mocks/mockBackend.ts",
 		"build": "vue-tsc --noEmit && vite build",
 		"serve": "vite preview",
@@ -34,6 +35,7 @@
 		"@vue/test-utils": "^2.0.0-rc.12",
 		"babel-jest": "26.5.2",
 		"body-parser": "^1.19.0",
+		"concurrently": "^6.2.1",
 		"eslint": "^7.32.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-import": "^2.24.0",
@@ -52,6 +54,7 @@
 		"vite": "^2.4.4",
 		"vue-eslint-parser": "^7.10.0",
 		"vue-jest": "^5.0.0-alpha.10",
-		"vue-tsc": "^0.2.2"
+		"vue-tsc": "^0.2.2",
+		"wait-on": "^6.0.0"
 	}
 }
