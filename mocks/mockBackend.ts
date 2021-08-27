@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import bodyParser from 'body-parser'
 import { Room } from '../src/core/Room'
 
@@ -6,7 +6,7 @@ const port = 3010
 const app = express()
 app.use(bodyParser.json())
 
-app.get('/api/spaces/:spaceId/rooms', (req: any, res: any) => {
+app.get('/api/spaces/:spaceId/rooms', (req: Request, res: Response) => {
 	const rooms = [
 		new Room('Some Room'),
 		new Room('Top Secret Meeting'),
@@ -15,7 +15,7 @@ app.get('/api/spaces/:spaceId/rooms', (req: any, res: any) => {
 	res.send(rooms)
 })
 
-app.get('/health', (req: any, res: any) => {
+app.get('/health', (req: Request, res: Response) => {
 	res.send()
 })
 
