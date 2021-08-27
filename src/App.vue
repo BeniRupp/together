@@ -4,12 +4,14 @@
 		<span v-if="user" class="header__greeting">Hi, {{ user.name }}.</span>
 	</header>
 	<main>
-		<join-form v-if="!user" class="app-join" @success="join" />
+		<join-form v-if="!user" class="app__join" @success="join" />
 		<template v-else>
 			<app-room
 				v-for="room in app.getRooms()"
 				:key="room.id"
 				:room="room"
+				class="app__room"
+				:title="`Join ${room.name} using double click.`"
 				@dblclick="joinRoom(room)"
 			/>
 		</template>
@@ -89,8 +91,14 @@ main {
 	flex: 1 0 auto;
 }
 
-.app-join {
+.app__join {
 	max-width: 40%;
 	margin: 5rem auto;
+}
+
+.app__room {
+	cursor: pointer;
+	user-select: none;
+	margin: 2rem;
 }
 </style>
