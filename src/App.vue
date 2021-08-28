@@ -1,5 +1,6 @@
 <template>
 	<header class="header">
+		<span class="header__space-name">{{ app.space?.name }}</span>
 		<span class="header__logo">Together</span>
 		<span v-if="user" class="header__greeting">Hi, {{ user.name }}.</span>
 	</header>
@@ -68,11 +69,16 @@ export default defineComponent({
 
 <style scoped>
 .header {
-	display: flex;
-	justify-content: space-between;
+	display: grid;
+	grid-template-columns: 3fr 1fr 3fr;
+	grid-gap: 1rem;
 	align-items: center;
 	padding: 0.5rem 1rem;
 	background-color: gold;
+}
+.header__space-name,
+.header__greeting {
+	font-size: 0.85rem;
 }
 .header__logo {
 	font-weight: bold;
@@ -80,15 +86,20 @@ export default defineComponent({
 }
 .header__greeting {
 	font-style: italic;
+	text-align: right;
 }
 
 main {
 	flex: 1 0 auto;
 }
-
 .app__join {
-	max-width: 40%;
-	margin: 5rem auto;
+	margin: 1rem;
+}
+@media screen and (min-width: 500px) {
+	.app__join {
+		max-width: 40%;
+		margin: 5rem auto;
+	}
 }
 
 .app__room {
