@@ -3,13 +3,13 @@ import AppComponent from '../../src/App.vue'
 import { Room } from '../../src/core/Room'
 import axios from 'axios'
 import { when } from 'jest-when'
-import { User } from '../../src/core/User'
+import { v4 as uuid } from 'uuid'
 
 jest.mock('axios')
 
 it('should join a user in the default room.', async () => {
 	const room = new Room('Flur')
-	mockGetRooms([room])
+	mockGetSpace([room])
 	await flushPromises()
 	const wrapper = await createWrapper()
 	expect(wrapper.find('[data-id=join-form]').exists()).toBe(true)
@@ -29,7 +29,7 @@ it('should allow users to switch rooms', async () => {
 	const room1 = new Room('Room 1')
 	const room2 = new Room('Room 2')
 
-	mockGetRooms([room1, room2])
+	mockGetSpace([room1, room2])
 	const wrapper = await createWrapper()
 	const userName = 'Jane'
 	await wrapper.find('input[data-id=username]').setValue(userName)
@@ -41,7 +41,6 @@ it('should allow users to switch rooms', async () => {
 	let room2Wrapper = wrapper.find(`[data-id=room][data-name="${room2.name}"]`)
 	expect(room2Wrapper.findAll('[data-id=user]')).toHaveLength(0)
 	await room2Wrapper.trigger('dblclick')
-	wrapper.vm.$data.app.join(new User('Beni'))
 	room1Wrapper = wrapper.find(`[data-id=room][data-name="${room1.name}"]`)
 	room2Wrapper = wrapper.find(`[data-id=room][data-name="${room2.name}"]`)
 	expect(room1Wrapper.findAll('[data-id=user]')).toHaveLength(0)
@@ -60,8 +59,14 @@ async function createWrapper() {
 	return wrapper
 }
 
-function mockGetRooms(rooms: Room[]) {
+function mockGetSpace(rooms: Room[]) {
 	when(axios.get)
-		.calledWith('/api/spaces/some-space-id/rooms')
-		.mockResolvedValueOnce({ data: rooms })
+		.calledWith('/api/spaces/some-space-id')
+		.mockResolvedValueOnce({
+			data: {
+				id: uuid(),
+				name: 'Crazy Space',
+				rooms,
+			},
+		})
 }

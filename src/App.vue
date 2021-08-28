@@ -7,7 +7,7 @@
 		<join-form v-if="!user" class="app__join" @success="join" />
 		<template v-else>
 			<app-room
-				v-for="room in app.getRooms()"
+				v-for="room in app.space?.getRooms()"
 				:key="room.id"
 				:room="room"
 				class="app__room"
@@ -26,6 +26,7 @@ import { Room } from './core/Room'
 import AppRoom from './components/AppRoom.vue'
 import JoinForm from './components/JoinForm.vue'
 import axios from 'axios'
+import Space from './core/Space'
 
 interface AppData {
 	user: User | undefined
@@ -41,30 +42,24 @@ export default defineComponent({
 			app: new App(),
 		}
 	},
-	mounted() {
-		this.init()
-	},
 	methods: {
-		async init(): Promise<void> {
+		async join(username: string, spaceId = 'some-space-id'): Promise<void> {
+			this.user = new User(username)
+
 			try {
-				const response = await axios.get('/api/spaces/some-space-id/rooms')
-				const rooms: Room[] = response.data.map((r: Room) => new Room(r.name))
-				if (rooms.length) {
-					this.app.defaultRoom = rooms[0]
-					rooms.forEach((r) => this.app.addRoom(r))
-				}
+				const response = await axios.get(`/api/spaces/${spaceId}`)
+				const rooms: Room[] = response.data.rooms.map(
+					(r: Room) => new Room(r.name)
+				)
+				const space = new Space(response.data.name, rooms)
+				this.app.joinSpace(space, this.user)
 			} catch (e) {
 				console.error('Could not load rooms.', e)
 			}
 		},
-		join(username: string): void {
-			const user = new User(username)
-			this.user = user
-			this.app.join(user)
-		},
 		joinRoom(room: Room): void {
 			if (this.user) {
-				this.app.joinRoom(room, this.user)
+				this.app.space?.joinRoom(room, this.user)
 			}
 		},
 	},
