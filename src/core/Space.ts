@@ -5,7 +5,7 @@ import { Room } from './Room'
 export default class Space {
 	id: string
 	name: string
-	private readonly rooms: Room[]
+	rooms: Room[]
 
 	constructor(name: string, rooms: Room[]) {
 		this.id = uuid()
@@ -35,7 +35,9 @@ export default class Space {
 	}
 
 	private removeUserFromCurrentRoom(user: User) {
-		const room = this.rooms.find((r) => r.getUsers().includes(user))
+		const room = this.rooms.find((r) =>
+			r.getUsers().some((u: User) => u.id === user.id)
+		)
 		if (room) {
 			room.removeUser(user)
 		}

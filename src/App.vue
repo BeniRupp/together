@@ -1,68 +1,52 @@
 <template>
 	<header class="header">
-		<span class="header__space-name">{{ app.space?.name }}</span>
+		<span class="header__space-name">{{ space?.name }}</span>
 		<span class="header__logo">Together</span>
 		<span v-if="user" class="header__greeting">Hi, {{ user.name }}.</span>
 	</header>
 	<main>
-		<join-form v-if="!user" class="app__join" @success="join" />
-		<template v-else>
-			<app-room
-				v-for="room in app.space?.getRooms()"
-				:key="room.id"
-				:room="room"
-				class="app__room"
-				:title="`Join ${room.name} using double click.`"
-				@dblclick="joinRoom(room)"
-			/>
-		</template>
+		<communication-handler ref="communicationHandler" v-slot="{ sendEvent }">
+			<join-form v-if="!user" class="app__join" @success="join" />
+			<template v-else>
+				<app-room
+					v-for="room in space?.getRooms()"
+					:key="room.id"
+					:room="room"
+					class="app__room"
+					:title="`Join ${room.name} using double click.`"
+					@dblclick="sendEvent(new JoinRoomEvent(user, space, room))"
+				/>
+			</template>
+		</communication-handler>
 	</main>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { User } from './core/User'
-import { App } from './core/App'
-import { Room } from './core/Room'
 import AppRoom from './components/AppRoom.vue'
 import JoinForm from './components/JoinForm.vue'
-import axios from 'axios'
-import Space from './core/Space'
-
-interface AppData {
-	user: User | undefined
-	app: App
-}
+import { mapActions, mapGetters } from 'vuex'
+import CommunicationHandler from './components/CommunicationHandler.vue'
+import JoinRoomEvent from './communication/events/JoinRoomEvent'
 
 export default defineComponent({
 	name: 'App',
-	components: { JoinForm, AppRoom },
-	data(): AppData {
+	components: { CommunicationHandler, JoinForm, AppRoom },
+	data() {
 		return {
-			user: undefined,
-			app: new App(),
+			JoinRoomEvent,
 		}
+	},
+	computed: {
+		...mapGetters(['user', 'space']),
 	},
 	methods: {
 		async join(username: string, spaceId = 'some-space-id'): Promise<void> {
-			this.user = new User(username)
-
-			try {
-				const response = await axios.get(`/api/spaces/${spaceId}`)
-				const rooms: Room[] = response.data.rooms.map(
-					(r: Room) => new Room(r.name)
-				)
-				const space = new Space(response.data.name, rooms)
-				this.app.joinSpace(space, this.user)
-			} catch (e) {
-				console.error('Could not load rooms.', e)
-			}
+			await this.loadUser(username)
+			await this.joinSpace(spaceId)
+			// TODO: Send join room event
 		},
-		joinRoom(room: Room): void {
-			if (this.user) {
-				this.app.space?.joinRoom(room, this.user)
-			}
-		},
+		...mapActions(['loadUser', 'joinSpace']),
 	},
 })
 </script>

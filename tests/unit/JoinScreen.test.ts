@@ -1,21 +1,35 @@
-import { flushPromises, mount } from '@vue/test-utils'
+import { flushPromises, mount, VueWrapper } from '@vue/test-utils'
 import AppComponent from '../../src/App.vue'
 import { Room } from '../../src/core/Room'
 import axios from 'axios'
 import { when } from 'jest-when'
 import { v4 as uuid } from 'uuid'
+import { User } from '../../src/core/User'
+import { createStore } from 'vuex'
+import store, { State } from '../../src/store'
+import MockWebSocket from 'jest-websocket-mock'
+import MockCommunicationServer from './MockCommunicationServer'
 
 jest.mock('axios')
+
+let mockServer: MockWebSocket
+
+beforeEach(async () => {
+	mockServer = new MockCommunicationServer()
+})
+
+afterEach(() => {
+	MockWebSocket.clean()
+})
 
 it('should join a user in the default room.', async () => {
 	const room = new Room('Flur')
 	mockGetSpace([room])
-	await flushPromises()
+	mockGetUsers()
 	const wrapper = await createWrapper()
 	expect(wrapper.find('[data-id=join-form]').exists()).toBe(true)
-	await wrapper.find('input[data-id=username]').setValue('Jane')
 	expect(wrapper.find('[data-id=room]').exists()).toBe(false)
-	await wrapper.find('button[data-id=join]').trigger('click')
+	await executeLogin(wrapper, 'Jane')
 	expect(wrapper.find('[data-id=join-form]').exists()).toBe(false)
 	expect(wrapper.find('header').element).toHaveTextContent(/Hi, Jane./)
 	const defaultRoom = wrapper.find('[data-id=room]')
@@ -26,24 +40,31 @@ it('should join a user in the default room.', async () => {
 })
 
 it('should allow users to switch rooms', async () => {
+	const user = new User('Jane')
+	mockGetUsers([user])
 	const room1 = new Room('Room 1')
 	const room2 = new Room('Room 2')
-
 	mockGetSpace([room1, room2])
+
 	const wrapper = await createWrapper()
-	const userName = 'Jane'
-	await wrapper.find('input[data-id=username]').setValue(userName)
-	await wrapper.find('button[data-id=join]').trigger('click')
+	await mockServer.connected
+	await executeLogin(wrapper, user.name)
+
 	let room1Wrapper = wrapper.find(`[data-id=room][data-name="${room1.name}"]`)
 	expect(room1Wrapper.find('[data-id=user]').element).toHaveTextContent(
-		userName
+		user.name
 	)
 	let room2Wrapper = wrapper.find(`[data-id=room][data-name="${room2.name}"]`)
 	expect(room2Wrapper.findAll('[data-id=user]')).toHaveLength(0)
+
+	mockGetUser(user.id, user)
 	await room2Wrapper.trigger('dblclick')
+	await expect(mockServer).toReceiveMessage(
+		expect.objectContaining({ eventType: 'JOIN_ROOM' })
+	)
 	room1Wrapper = wrapper.find(`[data-id=room][data-name="${room1.name}"]`)
-	room2Wrapper = wrapper.find(`[data-id=room][data-name="${room2.name}"]`)
 	expect(room1Wrapper.findAll('[data-id=user]')).toHaveLength(0)
+	room2Wrapper = wrapper.find(`[data-id=room][data-name="${room2.name}"]`)
 	expect(room2Wrapper.findAll('[data-id=user]')).toHaveLength(1)
 })
 
@@ -54,6 +75,9 @@ async function createWrapper() {
 
 	const wrapper = mount(AppComponent, {
 		attachTo: '#root',
+		global: {
+			plugins: [createStore<State>(store)],
+		},
 	})
 	await flushPromises()
 	return wrapper
@@ -69,4 +93,26 @@ function mockGetSpace(rooms: Room[]) {
 				rooms,
 			},
 		})
+}
+function mockGetUsers(users: User[] = [new User('Jane')]) {
+	when(axios.get)
+		.calledWith('/api/users')
+		.mockResolvedValueOnce({
+			data: [...users],
+		})
+}
+function mockGetUser(userId: string, user: User = new User('Jane')) {
+	when(axios.get)
+		.calledWith(`api/users/${userId}`)
+		.mockResolvedValueOnce({
+			data: { ...user },
+		})
+}
+
+async function executeLogin(wrapper: VueWrapper<any>, username: string) {
+	await wrapper
+		.find('[data-id=join-form] input[data-id=username]')
+		.setValue(username)
+	await wrapper.find('button[data-id=join]').trigger('click')
+	await flushPromises()
 }

@@ -6,8 +6,8 @@ export class Room {
 	name: string
 	private users: User[]
 
-	constructor(name: string) {
-		this.id = uuid()
+	constructor(name: string, id: string = uuid()) {
+		this.id = id
 		this.name = name
 		this.users = []
 	}
